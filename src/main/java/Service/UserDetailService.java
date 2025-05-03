@@ -4,6 +4,7 @@ import Entity.UserEntity;
 import Exception1.ResourceNotFoundException;
 import Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -22,7 +23,7 @@ public class UserDetailService implements UserDetailsService {
     public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
         Optional<UserEntity> userEntity = userRepository.findByEmail(s);
         if (!userEntity.isPresent()) {
-            throw new ResourceNotFoundException("email not found");
+            throw new BadCredentialsException("email not found");
         }
         return userEntity.get();
     }

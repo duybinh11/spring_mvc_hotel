@@ -53,6 +53,10 @@ public class HotelService {
         return hotelRepository.findById(idHotel).get();
     }
 
+    public HotelResponse detail(Long id){
+        return hotelMapper.toHotelResponse(hotelRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("hotel not found")));
+    }
+
     public Hotel getHotelByUserId(Long idUser) {
         return hotelRepository.findByUser_Id(idUser);
     }

@@ -50,6 +50,11 @@ public class HotelController {
         return hotelService.search(searchRequest);
     }
 
+    @GetMapping("/detail")
+    public HotelResponse detail(@RequestParam(name = "id") Long id){
+        return hotelService.detail(id);
+    }
+
 
     @PostMapping(path = "/uploadFile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Map<String, String>> uploadFile(@RequestParam("file") MultipartFile file) {
