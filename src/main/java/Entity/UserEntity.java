@@ -26,6 +26,9 @@ public class UserEntity extends  AbstractEntity<Long> implements UserDetails {
     private String email;
     private String password;
 
+    @Column(name = "token_version")
+    private Integer  tokenVersion = 1;
+
 
     @JsonIgnore
     @OneToMany(mappedBy = "user")

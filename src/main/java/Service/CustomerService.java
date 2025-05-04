@@ -7,6 +7,7 @@ import Entity.UserEntity;
 import MapperData.CustomerMapper;
 import Repository.CustomerRepository;
 import Repository.UserRepository;
+import Util.ValidaResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
@@ -21,6 +22,8 @@ public class CustomerService {
     private UserService userService;
     @Autowired
     private CustomerMapper customerMapper;
+    @Autowired
+    private ValidaResponse validaResponse;
 
     public CustomerResponse add(CustomerRequest customerRequest) {
         Customer customer = customerMapper.toCustomer(customerRequest);
@@ -30,14 +33,9 @@ public class CustomerService {
     }
 
     public CustomerResponse me(Long idUser){
+        validaResponse.checkUserIdMathToken(idUser);
         Customer customer = customerRepository.findByUserId(idUser);
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
-        if(customer.getUser().getEmail().equals(email)){
-            return customerMapper.toCustomerResponse(customer);
-        }else{
-            throw new BadCredentialsException("Account not match token!");
-        }
+        return customerMapper.toCustomerResponse(customer);
     }
 
     public Customer getCustomerByIdUser(Long idUser) {

@@ -31,6 +31,14 @@ public class PreFilter  extends OncePerRequestFilter {
     private UserDetailService userDetailService;
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getServletPath();
+        return path.startsWith("/auth/login")
+                || path.startsWith("/hotel")
+                ;
+    }
+
+    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         final String authorization = request.getHeader(AUTHORIZATION);
         System.out.println("---------- doFilterInternal ----------" );
@@ -46,8 +54,9 @@ public class PreFilter  extends OncePerRequestFilter {
                 System.out.println("Xác thực token");
                 UserDetails userDetails = userDetailService.loadUserByUsername(userName);
                 List<SimpleGrantedAuthority> authorities = userDetailService.permissions(userDetails.getUsername());
+                Integer tokenVersion = userDetailService.tokenVersion(userDetails.getUsername());
                 System.out.println("Permission : "+ authorities);
-                if (jwtUtil.validateToken(token, userName)) {
+                if (jwtUtil.validateToken(token, userName,tokenVersion)) {
                     System.out.println("set du lieu");
                     SecurityContext context = SecurityContextHolder.createEmptyContext();
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
@@ -60,6 +69,14 @@ public class PreFilter  extends OncePerRequestFilter {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
             response.getWriter().write("{\"error\": \"Token has expired\"}");
+            return;
+        } catch (IllegalAccessException e) {
+            String email = jwtUtil.extractUsername(token);
+            userDetailService.increaseTokenVersion(email);
+
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\": \"Token đã bị thu hồi\"}");
             return;
         }
 

@@ -37,4 +37,16 @@ public class UserDetailService implements UserDetailsService {
         return permissions.get().stream().map(SimpleGrantedAuthority::new).toList();
     }
 
+    public int tokenVersion(String email){
+        UserEntity userEntity = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("email not found"));
+        return  userEntity.getTokenVersion();
+    }
+
+    public void increaseTokenVersion(String email){
+        UserEntity userEntity = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("email not found"));
+        userEntity.setTokenVersion(userEntity.getTokenVersion() + 1);
+        userRepository.save(userEntity);
+    }
+
+
 }
